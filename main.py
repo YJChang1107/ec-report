@@ -28,12 +28,36 @@ def read_report_prompt(filepath="report.md"):
 
 def generate_report(prompt):
     """Generates the report using Gemini API."""
-    # Enable Google Search tool for "Deep Research" capabilities
-    # This allows the model to access real-time data from the web
-    # Use dictionary syntax to be compatible with various SDK versions
-    tools = [
-        {'google_search': {}}
-    ]
+    # Debugging: Print version and available types
+    print(f"GenAI Version: {genai.__version__}")
+    
+    tools = []
+    try:
+        from google.generativeai import protos
+        # Try to find the correct Google Search tool class
+        if hasattr(protos, 'GoogleSearch'):
+            print("Found protos.GoogleSearch")
+            tools = [protos.Tool(google_search=protos.GoogleSearch())]
+        elif hasattr(protos, 'GoogleSearchRetrieval'):
+            print("Found protos.GoogleSearchRetrieval")
+            tools = [
+                protos.Tool(
+                    google_search_retrieval=protos.GoogleSearchRetrieval(
+                        dynamic_retrieval_config=protos.DynamicRetrievalConfig(
+                            mode=protos.DynamicRetrievalConfig.Mode.DYNAMIC,
+                            dynamic_threshold=0.3,
+                        )
+                    )
+                )
+            ]
+        else:
+            print("Could not find GoogleSearch or GoogleSearchRetrieval in protos.")
+            print(f"Available protos: {[p for p in dir(protos) if 'Search' in p]}")
+    except Exception as e:
+        print(f"Error configuring Google Search tool: {e}")
+        # Fallback to no tools if configuration fails
+        tools = []
+
     model = genai.GenerativeModel(MODEL_NAME, tools=tools)
     
     # Add current time context to the prompt
