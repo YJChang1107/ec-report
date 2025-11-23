@@ -44,7 +44,7 @@ def generate_report(prompt):
             protos.Tool(
                 google_search_retrieval=protos.GoogleSearchRetrieval(
                     dynamic_retrieval_config=protos.DynamicRetrievalConfig(
-                        mode=protos.DynamicRetrievalConfig.Mode.DYNAMIC,
+                        mode=protos.DynamicRetrievalConfig.Mode.MODE_DYNAMIC,
                         dynamic_threshold=0.3,
                     )
                 )
