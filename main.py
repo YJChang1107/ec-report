@@ -275,7 +275,12 @@ def main():
         return
     
     prompt = read_report_prompt()
-    print("Prompt loaded.")
+    
+    # Inject current system time into the prompt placeholder
+    current_time_str = get_current_time_str()
+    prompt = prompt.replace("{{CURRENT_DATE}}", current_time_str)
+    
+    print(f"Prompt loaded and time injected: {current_time_str}")
     
     # 2. Generate Content
     print("Querying Gemini API...")
