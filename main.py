@@ -28,7 +28,9 @@ def read_report_prompt(filepath="report.md"):
 
 def generate_report(prompt):
     """Generates the report using Gemini API."""
-    model = genai.GenerativeModel(MODEL_NAME)
+    # Enable Google Search tool for "Deep Research" capabilities
+    # This allows the model to access real-time data from the web
+    model = genai.GenerativeModel(MODEL_NAME, tools='google_search_retrieval')
     
     # Add current time context to the prompt
     full_prompt = f"{prompt}\n\n(System Note: The current execution time is {get_current_time_str()})"
