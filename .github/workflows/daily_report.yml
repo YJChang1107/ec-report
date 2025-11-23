@@ -30,6 +30,8 @@ jobs:
       - name: Generate Report
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
         run: |
           python main.py
 

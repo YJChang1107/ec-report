@@ -311,6 +311,44 @@ def main():
     with open(archive_filename, "w", encoding="utf-8") as f:
         f.write(full_html)
     print(f"Archived to {archive_filename}")
+    
+    # 7. Send Email
+    send_email(full_html, today_str)
+
+def send_email(html_content, date_str):
+    """Sends the report via email."""
+    import smtplib
+    from email.mime.text import MIMEText
+    from email.mime.multipart import MIMEMultipart
+    
+    sender_email = os.environ.get("EMAIL_SENDER")
+    sender_password = os.environ.get("EMAIL_PASSWORD")
+    
+    # Recipients list
+    recipients = ["yenjung@gmail.com"]
+    
+    if not sender_email or not sender_password:
+        print("Warning: EMAIL_SENDER or EMAIL_PASSWORD not set. Skipping email.")
+        return
+
+    print(f"Sending email to {len(recipients)} recipients...")
+    
+    try:
+        msg = MIMEMultipart()
+        msg['From'] = sender_email
+        msg['To'] = ", ".join(recipients)
+        msg['Subject'] = f"📊 每日美股宏觀晨報 ({date_str})"
+        
+        msg.attach(MIMEText(html_content, 'html'))
+        
+        # Connect to Gmail SMTP server
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
+            server.login(sender_email, sender_password)
+            server.send_message(msg)
+            
+        print("Email sent successfully!")
+    except Exception as e:
+        print(f"Error sending email: {e}")
 
 if __name__ == "__main__":
     main()
