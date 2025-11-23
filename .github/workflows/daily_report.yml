@@ -1,0 +1,42 @@
+name: Daily Economic Report
+
+on:
+  schedule:
+    # 每天台灣時間 07:00 (UTC 23:00 前一天)
+    - cron: '0 23 * * *'
+  workflow_dispatch: # 允許手動觸發
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Generate Report
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          python main.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          # 只有當有變更時才 Commit
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-generated report $(date +'%Y-%m-%d')" && git push)
