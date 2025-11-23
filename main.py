@@ -13,7 +13,7 @@ if not API_KEY:
 genai.configure(api_key=API_KEY)
 
 # Use the model requested by the user
-MODEL_NAME = 'gemini-3.0-pro'
+MODEL_NAME = 'gemini-3-pro-preview'
 
 def get_current_time_str():
     """Returns current time in Taipei timezone."""
