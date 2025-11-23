@@ -1,9 +1,9 @@
 name: Daily Economic Report
 
 on:
-  schedule:
-    # 每天台灣時間 07:00 (UTC 23:00 前一天)
-    - cron: '0 23 * * *'
+#   schedule:
+#     # 每天台灣時間 07:00 (UTC 23:00 前一天)
+#     - cron: '0 23 * * *'
   workflow_dispatch: # 允許手動觸發
 
 permissions:
