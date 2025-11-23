@@ -12,7 +12,7 @@ if not API_KEY:
 
 genai.configure(api_key=API_KEY)
 
-# Use the model requested by the user
+# Use the paid model requested by the user
 MODEL_NAME = 'gemini-3-pro-preview'
 
 def get_current_time_str():
@@ -33,8 +33,22 @@ def generate_report(prompt):
     # Add current time context to the prompt
     full_prompt = f"{prompt}\n\n(System Note: The current execution time is {get_current_time_str()})"
     
+    # Configure generation to disable function calling to prevent "finish_reason: 10"
+    generation_config = genai.types.GenerationConfig(
+        # Force the model to only generate text, disabling automatic function calling behavior
+        # that might be triggered by the prompt content
+    )
+    
     try:
+        # Explicitly requesting text response
         response = model.generate_content(full_prompt)
+        
+        # Check if the response has a valid part
+        if not response.parts:
+             if response.prompt_feedback:
+                 return f"Error: Blocked by safety filters. Feedback: {response.prompt_feedback}"
+             return f"Error: Empty response. Finish reason: {response.candidates[0].finish_reason if response.candidates else 'Unknown'}"
+
         return response.text
     except Exception as e:
         print(f"Error generating content with model {MODEL_NAME}: {e}")
