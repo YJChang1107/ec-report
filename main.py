@@ -70,9 +70,33 @@ def convert_to_html(markdown_text):
     )
     return html_content
 
+def get_history_links():
+    """Scans the reports directory and returns a list of links."""
+    if not os.path.exists("reports"):
+        return ""
+    
+    links = []
+    for filename in sorted(os.listdir("reports"), reverse=True):
+        if filename.endswith(".html"):
+            date_str = filename.replace(".html", "")
+            links.append(f'<li><a href="reports/{filename}">{date_str}</a></li>')
+    
+    if not links:
+        return ""
+        
+    return f"""
+    <div class="history-section">
+        <h3>📅 歷史報告存檔</h3>
+        <ul>
+            {''.join(links)}
+        </ul>
+    </div>
+    """
+
 def create_html_page(report_html):
     """Wraps the report content in a responsive HTML template."""
     current_time = get_current_time_str()
+    history_links = get_history_links()
     
     css = """
     :root {
@@ -160,6 +184,36 @@ def create_html_page(report_html):
         font-style: italic;
     }
     
+    .history-section {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 2px dashed #eee;
+    }
+    
+    .history-section ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .history-section li a {
+        display: inline-block;
+        padding: 5px 15px;
+        background: #f0f0f0;
+        color: #555;
+        text-decoration: none;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: background 0.2s;
+    }
+    
+    .history-section li a:hover {
+        background: var(--accent-color);
+        color: white;
+    }
+    
     .footer {
         margin-top: 40px;
         text-align: center;
@@ -200,6 +254,9 @@ def create_html_page(report_html):
     <body>
         <div class="container">
             {report_html}
+            
+            {history_links}
+            
             <div class="footer">
                 <p>Generated automatically by AI Agent at {current_time}</p>
             </div>
@@ -231,11 +288,24 @@ def main():
     # 4. Create Full Page
     full_html = create_html_page(report_html)
     
-    # 5. Save to file
+    # 5. Save to index.html (Current Report)
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(full_html)
-    
     print("Success! index.html has been created.")
+    
+    # 6. Archive Report
+    # Create reports directory if not exists
+    if not os.path.exists("reports"):
+        os.makedirs("reports")
+        
+    # Get today's date for filename (e.g., 2025-11-23.html)
+    tz = pytz.timezone('Asia/Taipei')
+    today_str = datetime.datetime.now(tz).strftime('%Y-%m-%d')
+    archive_filename = f"reports/{today_str}.html"
+    
+    with open(archive_filename, "w", encoding="utf-8") as f:
+        f.write(full_html)
+    print(f"Archived to {archive_filename}")
 
 if __name__ == "__main__":
     main()
