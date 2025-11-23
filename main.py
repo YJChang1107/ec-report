@@ -12,8 +12,8 @@ if not API_KEY:
 
 genai.configure(api_key=API_KEY)
 
-# Use a model that supports system instructions and has good reasoning
-MODEL_NAME = 'gemini-1.5-pro' 
+# Use the model requested by the user
+MODEL_NAME = 'gemini-3.0-pro'
 
 def get_current_time_str():
     """Returns current time in Taipei timezone."""
@@ -37,8 +37,16 @@ def generate_report(prompt):
         response = model.generate_content(full_prompt)
         return response.text
     except Exception as e:
-        print(f"Error generating content: {e}")
-        return f"Error generating report: {e}"
+        print(f"Error generating content with model {MODEL_NAME}: {e}")
+        print("Attempting to list available models...")
+        try:
+            for m in genai.list_models():
+                if 'generateContent' in m.supported_generation_methods:
+                    print(f"- {m.name}")
+        except Exception as list_e:
+            print(f"Could not list models: {list_e}")
+            
+        return f"Error generating report: {e}. Check the Action logs for available models."
 
 def convert_to_html(markdown_text):
     """Converts Markdown to HTML with extensions."""
