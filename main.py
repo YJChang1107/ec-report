@@ -13,7 +13,7 @@ if not API_KEY:
 genai.configure(api_key=API_KEY)
 
 # Use the model that supports Google Search tool
-MODEL_NAME = 'gemini-2.5-pro'
+MODEL_NAME = 'gemini-2.5-pro-preview'
 
 def get_current_time_str():
     """Returns current time in Taipei timezone."""
